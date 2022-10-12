@@ -5,7 +5,7 @@ import os, glob, sys
 all_test = glob.glob("*.py")
 
 tests = {
-    "core":[
+    "coreA":[
       "backuprestore.py",
       "boundary.py",
       "concepts.py",
@@ -16,6 +16,8 @@ tests = {
       "geoview.py",
       "lineplot.py",
       "levelgridview.py",
+    ],
+    "coreA":[
       "othergrids.py",
       "solvers.py",
       "laplace-adaptive.py",

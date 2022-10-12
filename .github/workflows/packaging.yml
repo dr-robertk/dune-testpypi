@@ -100,7 +100,7 @@ jobs:
         # 2) macOS does not install petsc4py
         matrix:
             os: [ubuntu-latest, macOS-latest]
-            test: [core, extensions]
+            test: [coreA, coreB, extensions]
             python: [3.6, 3.10.6]
     runs-on: ${{ matrix.os }}
     steps:
