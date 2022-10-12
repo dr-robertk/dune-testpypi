@@ -17,7 +17,7 @@ tests = {
       "lineplot.py",
       "levelgridview.py",
     ],
-    "coreA":[
+    "coreB":[
       "othergrids.py",
       "solvers.py",
       "laplace-adaptive.py",
