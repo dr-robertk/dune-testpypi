@@ -158,7 +158,7 @@ jobs:
         run: |
           python3 -m venv dune-env
           source dune-env/bin/activate
-          PYVERS=$(python --version)
+          PYVERS=$(python3 --version)
           echo "Selected python version $PYVERS"
           pip3 install --upgrade pip
           pip3 install matplotlib scipy triangle scikit-build mpi4py
