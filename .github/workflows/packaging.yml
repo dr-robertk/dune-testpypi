@@ -114,9 +114,7 @@ jobs:
         run: echo "FEMBRANCH=${{ github.event.inputs.fembranch }}" >> $GITHUB_ENV
       - name: pipPreOrNot
         run: |
-          if [ "$BRANCH" == "master" ]; then
-            echo "PIPPRE=--pre" >> $GITHUB_ENV
-          fi
+          echo "PIPPRE=--pre" >> $GITHUB_ENV
       - name: environmentLog
         if: github.event.inputs.logLevel != ''
         run: echo "LOGLEVEL=${{ github.event.inputs.logLevel }}" >> $GITHUB_ENV
