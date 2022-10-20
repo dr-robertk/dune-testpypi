@@ -121,6 +121,7 @@ jobs:
         if: github.event.inputs.logLevel != ''
         run: echo "LOGLEVEL=${{ github.event.inputs.logLevel }}" >> $GITHUB_ENV
       - name: setup python ${{ matrix.python }}
+        if: ${{ matrix.python == '3.10.6' || matrix.os == 'ubuntu-latest' }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
@@ -141,8 +142,7 @@ jobs:
             # gmsh
           elif [ "$RUNNER_OS" == "macOS" ]; then
             brew update
-            brew install openmpi superlu suite-sparse paraview
-            # gmsh
+            brew install openmpi superlu suite-sparse paraview gmsh boost
           fi
         shell: bash
       - name: download artifacts
