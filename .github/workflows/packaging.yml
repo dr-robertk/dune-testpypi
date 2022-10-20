@@ -39,6 +39,10 @@ on:
         description: 'fem tag e.g. (master | v2.8.0.1) [master]'
         required: true
         default: 'master'
+      femversion:
+        description: 'install dune-fem package == version - leave empty if you want to use latest version'
+        required: true
+        defailt: ''
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -112,6 +116,9 @@ jobs:
       - name: environmentFem
         if: github.event.inputs.fembranch != ''
         run: echo "FEMBRANCH=${{ github.event.inputs.fembranch }}" >> $GITHUB_ENV
+      - name: environmentFemVersion
+        if: github.event.inputs.femversion != ''
+        run: echo "FEMVERSION=${{ github.event.inputs.femversion }}" >> $GITHUB_ENV
       - name: pipPreOrNot
         run: |
           echo "PIPPRE=--pre" >> $GITHUB_ENV
@@ -172,7 +179,11 @@ jobs:
         run: |
           ls dist
           source dune-env/bin/activate
-          pip3 install $PIPPRE  -U -v --find-links file://$PWD/dist dune-fem
+          if [ "$FEMVERSION" == "" ]; then
+            pip3 install $PIPPRE  -U -v --find-links file://$PWD/dist dune-fem
+          else
+            pip3 install $PIPPRE  -U -v --find-links file://$PWD/dist dune-fem==$FEMVERSION
+          fi
         shell: bash
       - name: Install extension modules
         if: ${{ matrix.python == '3.10.6' || matrix.os == 'ubuntu-latest' && matrix.test == 'extensions' }}
