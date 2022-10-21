@@ -191,6 +191,7 @@ jobs:
             pip3 install $PIPPRE -U -v --find-links file://$PWD/dist dune-fem-dg dune-vem
           else
             pip3 install $PIPPRE -U -v --find-links file://$PWD/dist dune-fem-dg==$FEMVERSION dune-vem==$FEMVERSION
+          fi
         shell: bash
       - name: Setup dune-py
         # macOS fails with python 3.6: Symbol not found: _PyCMethod_New
