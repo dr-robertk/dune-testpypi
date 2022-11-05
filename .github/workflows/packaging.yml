@@ -42,7 +42,7 @@ on:
       femversion:
         description: 'install dune-fem package == version - leave empty if you want to use latest version'
         required: true
-        defailt: ''
+        default: ''
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
