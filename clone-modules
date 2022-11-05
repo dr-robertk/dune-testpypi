@@ -32,8 +32,8 @@ echo Downloading dune-common into $PWD
 set +e
 git clone --depth 1 -b $coretag $coreurl/dune-common.git > /dev/null 2>&1
 if [ ! $? = 0 ]; then # the branch/tag didn't exist so use master
-  echo "using dune-common master since $coretag branch not found!"
-  git clone --depth 1 $coreurl/dune-common.git > /dev/null 2>&1
+  echo "using dune-common releases 2.9 since $coretag branch not found!"
+  git clone --depth 1 -b releases/2.9 $coreurl/dune-common.git > /dev/null 2>&1
 else
   echo "cloned dune-common $coretag"
 fi
