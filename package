@@ -40,8 +40,8 @@ clonemodule()
           echo "Rerun test with 'upload=none'."
           exit 1
         fi
-        echo "using master since $t branch not found!"
-        git clone --depth 1 $p # > /dev/null 2>&1
+        echo "using releases/2.9 since $t branch not found!"
+        git clone --depth 1 -b releases/2.9 $p # > /dev/null 2>&1
       fi
       cd $m
       git log | head
