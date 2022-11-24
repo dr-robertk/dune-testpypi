@@ -104,7 +104,8 @@ jobs:
         # 1) macOS and python 3.6 is disabled due to linker error
         # 2) macOS does not install petsc4py
         matrix:
-            os: [ubuntu-latest, macOS-latest]
+            # os: [ubuntu-latest, macOS-latest]
+            os: [ubuntu-20.04, macOS-latest]
             test: [coreA, coreB, extensions]
             python: [3.8] # , 3.11]
     runs-on: ${{ matrix.os }}
