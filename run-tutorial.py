@@ -4,6 +4,7 @@ import os, glob, sys
 # Creating the tuple of all the tests
 all_test = glob.glob("*.py")
 
+
 tests = {
     "coreA":[
       "backuprestore.py",
@@ -16,6 +17,8 @@ tests = {
       "geoview.py",
       "lineplot.py",
       "levelgridview.py",
+      "cppfunctions.py",
+      "parallelization.py",
     ],
     "coreB":[
       "othergrids.py",
@@ -25,6 +28,7 @@ tests = {
       "mcf.py",
       "mcf-algorithm.py",
       "uzawa-scipy.py",
+      "evalues_laplace.py",
     ],
     "extensions":[
       "crystal.py",
@@ -36,6 +40,8 @@ tests = {
       # "euler.py",             # one of these
       # "twophaseflow.py",      # does not terminate on MACOs
       "vemdemo.py",
+      "monolithicStokes.py",
+      "fieldsplitStokes.py",
     ]}
 
 disabled = ["3dexample.py", "limit.py"]
