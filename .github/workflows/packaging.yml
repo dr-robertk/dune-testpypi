@@ -101,8 +101,7 @@ jobs:
     strategy:
         fail-fast: false
         # Note:
-        # 1) macOS and python 3.6 is disabled due to linker error
-        # 2) macOS does not install petsc4py
+        # macOS does not install petsc4py
         matrix:
             os: [ubuntu-latest, macOS-latest]
             # os: [ubuntu-20.04, macOS-latest]
@@ -148,6 +147,7 @@ jobs:
             sudo apt upgrade -y
             sudo apt-get install libopenmpi-dev openmpi-bin libsuperlu-dev libsuitesparse-dev petsc-dev paraview python3-paraview gmsh python3-petsc4py-real
           elif [ "$RUNNER_OS" == "macOS" ]; then
+            rm -rf /usr/local/bin/2to3 # otherwise a python upgrade fails in next step
             brew update
             brew install openmpi superlu suite-sparse paraview gmsh boost
           fi
