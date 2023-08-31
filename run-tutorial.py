@@ -41,7 +41,7 @@ tests = {
       # "twophaseflow.py",      # does not terminate on MACOs
       "vemdemo.py",
       "monolithicStokes.py",
-      "fieldsplitStokes.py",
+      # "fieldsplitStokes.py",  # not yet added to 'main' in dune-fempy
     ]}
 
 disabled = ["3dexample.py", "limit.py"]
