@@ -212,7 +212,7 @@ jobs:
           if [[ $BRANCH = 2.8* ]] ; then
             DUNE_CONTROL_PATH=dune-env setup-dunepy.py --opts=config.opts
           fi
-          python -m dune.fem tutorial
+          python -m dune.fem # tutorial
         shell: bash
       - name: Run tutorial
         # if: ${{ matrix.python == '3.11' || matrix.os == 'ubuntu-latest' }}
