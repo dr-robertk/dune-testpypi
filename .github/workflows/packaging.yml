@@ -172,8 +172,8 @@ jobs:
           if [ "$RUNNER_OS" == "Linux" ]; then
             # echo "CURRENTLY PETSC4PY IS DISABLED"
             # petsc4py is failing at the moment - need to check
-            # PETSC_CONFIGURE_OPTIONS="--download-suitesparse --download-hypre --download-mumps --download-ml --download-superlu"
-            pip3 install petsc petsc4py
+            # PETSC_CONFIGURE_OPTIONS="--download-scalapack --download-suitesparse --download-hypre --download-mumps --download-ml --download-superlu"
+            pip3 install -v petsc petsc4py
           else
             echo "CURRENTLY PETSC4PY IS DISABLED on MACOs due to issues with mpif90 - needs checking"
             # while building petsc the following error is produced
