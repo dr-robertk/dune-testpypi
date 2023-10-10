@@ -45,6 +45,10 @@ clonemodule()
       fi
       cd $m
       git log | head
+      if [ "$m" = "dune-fem" ]; then
+        comHash=`git ls-remote ssh://git@gitlab.dune-project.org:22022/dune-fem/dune-fempy.git master | cut -f 1`
+        sed -i "s/master/${comHash}/" python/dune/fem/__main__.py
+      fi
       package $base
       cd ..
   else
