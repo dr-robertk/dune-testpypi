@@ -22,7 +22,7 @@ tests = {
     ],
     "coreB":[
       "othergrids.py",
-      # "solvers.py",
+      "solvers.py",
       "laplace-adaptive.py",
       "laplace-dwr.py",
       "mcf.py",
