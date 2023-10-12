@@ -22,7 +22,7 @@ tests = {
     ],
     "coreB":[
       "othergrids.py",
-      # "solvers.py",
+      "solvers.py",
       "laplace-adaptive.py",
       "laplace-dwr.py",
       "mcf.py",
@@ -50,7 +50,7 @@ disabled = ["3dexample.py", "limit.py"]
 def execute(process):
     print("START:",process,"...",flush=True)
     if process in disabled: return [process,'disabled']
-    ret = os.system(f'python {process}')
+    ret = os.system(f'PYTHONUNBUFFERED=1 python {process}')
     print("...",process,"completed",flush=True)
     return [process,ret]
 
