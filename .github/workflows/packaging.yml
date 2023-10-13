@@ -145,11 +145,11 @@ jobs:
             # after selecting a specific mirror, we need to run 'apt-get update'
             sudo apt-get update -o Acquire::Retries=3
             sudo apt upgrade -y
-            sudo apt-get install libopenmpi-dev openmpi-bin libsuperlu-dev libsuitesparse-dev petsc-dev paraview python3-paraview gmsh python3-petsc4py-real
+            sudo apt-get install libopenmpi-dev openmpi-bin libsuperlu-dev libsuitesparse-dev petsc-dev gmsh python3-petsc4py-real
           elif [ "$RUNNER_OS" == "macOS" ]; then
             rm -rf /usr/local/bin/2to3 # otherwise a python upgrade fails in next step
             brew update
-            brew install openmpi superlu suite-sparse paraview gmsh boost
+            brew install openmpi superlu suite-sparse gmsh boost
           fi
         shell: bash
       - name: download artifacts

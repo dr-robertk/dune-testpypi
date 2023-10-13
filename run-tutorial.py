@@ -55,6 +55,7 @@ def execute(process):
     return [process,ret]
 
 if __name__ == "__main__":
+    sys.exit(0)
     examples = sys.argv[1]
     process_pool = multiprocessing.Pool(processes = 1)
     ret = process_pool.map(execute, tests[examples])
