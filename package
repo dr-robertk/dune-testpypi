@@ -46,7 +46,7 @@ clonemodule()
       cd $m
       git log | head
       if [ "$m" = "dune-fem" ]; then
-        comHash=`git ls-remote ssh://git@gitlab.dune-project.org:22022/dune-fem/dune-fempy.git master | cut -f 1`
+        comHash=`git ls-remote https://gitlab.dune-project.org/dune-fem/dune-fempy.git master | cut -f 1`
         if [ "$comHash" = "" ]; then
             echo "could not retrieve hash for dune-fempy"
             exit 1
