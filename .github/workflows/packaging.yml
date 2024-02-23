@@ -187,23 +187,13 @@ jobs:
         run: |
           ls dist
           source dune-env/bin/activate
-          if [ "$FEMVERSION" == "" ]; then
-            pip3 install $PIPPRE  -U -v --find-links file://$PWD/dist dune-fem
-          else
-            pip3 install $PIPPRE  -U -v --find-links file://$PWD/dist dune-fem==$FEMVERSION
-          fi
-        shell: bash
-      - name: Install extension modules
-        # if: ${{ (matrix.python == '3.11' || matrix.os == 'ubuntu-latest') && matrix.test == 'extensions' }}
-        run: |
-          source dune-env/bin/activate
           pip3 install extract-version
           python extractreq.py
           cat requirements.txt
           if [ "$FEMVERSION" == "" ]; then
-            pip3 install $PIPPRE -U -v --find-links file://$PWD/dist -r requirements.txt
+            pip3 install $PIPPRE  -U -v --find-links file://$PWD/dist -r requirements.txt
           else
-            pip3 install $PIPPRE -U -v --find-links file://$PWD/dist -r requirements.txt 
+            pip3 install $PIPPRE  -U -v --find-links file://$PWD/dist -r requirements.txt
           fi
         shell: bash
       - name: Setup dune-py
