@@ -117,6 +117,11 @@ jobs:
           path: dist
           repo: dune-project/dune-testpypi
           if_no_artifact_found: fail
+      - name: upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: packages
+          path: dist
       - name: Install dependencies
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
