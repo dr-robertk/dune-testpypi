@@ -61,6 +61,7 @@ jobs:
           echo "Using dune-core branch: ${{ github.event.inputs.branch }}"
           echo "Using dune-fem  branch: ${{ github.event.inputs.fembranch }}"
           echo "Using dune-fem  branch: ${{ github.event.inputs.femversion }}"
+          echo "ref: ${{ github.ref }}"
       - name: starting
         uses: actions/checkout@v3
       - name: Test on dune/dune-testpypi and get the run ID
