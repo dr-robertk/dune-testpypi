@@ -39,10 +39,6 @@ on:
         description: 'fem tag e.g. (master | v2.8.0.1) [master]'
         required: true
         default: 'master'
-      femversion:
-        description: 'install dune-fem package == version - leave empty if you want to use latest version'
-        required: false
-        default: ''
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -50,17 +46,21 @@ jobs:
   build:
     name: build
     runs-on: [ubuntu-latest]
+    env:
+      DOWNURL: 'https://gitlab.dune-project.org'
     steps:
+      - name: downloadLund
+        if: github.event.inputs.download == 'lund'
+        run: echo "DOWNURL=https://gitlab.maths.lu.se/dune" >> $GITHUB_ENV
       - name: printParameters
         run: |
           echo "Workflow parameters"
           echo "Using github branch   : ${GITHUB_REF#refs/heads/}"
           echo "Using log level       : ${{ github.event.inputs.logLevel }}"
-          echo "Using download        : ${{ github.event.inputs.download }}"
+          echo "Using download        : ${{ github.event.env.DOWNURL }}"
           echo "Using upload          : ${{ github.event.inputs.upload }}"
           echo "Using dune-core branch: ${{ github.event.inputs.branch }}"
           echo "Using dune-fem  branch: ${{ github.event.inputs.fembranch }}"
-          echo "Using dune-fem  branch: ${{ github.event.inputs.femversion }}"
           echo "ref: ${{ github.ref }}"
       - name: starting
         uses: actions/checkout@v3
@@ -73,7 +73,7 @@ jobs:
           owner: dune-project
           ref: ${{ github.ref }}
           workflow: testing.yml
-          workflow_inputs: '{ "logLevel":  "${{ github.event.inputs.logLevel }}", "branch":    "${{ github.event.inputs.branch }}", "fembranch": "${{ github.event.inputs.fembranch }}" }'
+          workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}", "branch": "${{ github.event.inputs.branch }}", "fembranch": "${{ github.event.inputs.fembranch }}", "download": "${{ github.env.DOWNURL }}", "runTests": false }'
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
         uses: Codex-/await-remote-run@v1.0.0
         with:
@@ -192,13 +192,13 @@ jobs:
   # https://github.com/marketplace/actions/pypi-publish
   upload:
     name: uploading
-    needs: test
     env:
       UPLOAD: none
+    needs: test
     runs-on: [ubuntu-latest]
     steps:
       - name: environment
-        if: github.client_payload.caller.upload != ''
+        if: github.event.inputs.upload != ''
         run: echo "UPLOAD=${{ github.event.inputs.upload }}" >> $GITHUB_ENV
       - name: download artifacts
         uses: actions/download-artifact@v3
