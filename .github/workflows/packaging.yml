@@ -83,6 +83,24 @@ jobs:
           run_id: ${{ steps.return_dispatch.outputs.run_id }}
           run_timeout_seconds: 7200
           poll_interval_ms: 5000
+      - name: download artifacts from dune-testpypi
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.Dispatch_Secret }}
+          repo: dune-project/dune-testpypi
+          branch: main
+          workflow: testing.yml
+          # workflow_search: true
+          run_id: ${{ steps.return_dispatch.outputs.run_id }}
+          workflow_conclusion: success
+          name: packages
+          path: dist
+          if_no_artifact_found: fail
+      - name: upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: packages
+          path: dist
 
   # test packages
   test:
@@ -105,20 +123,10 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python }}
-      - name: download artifacts from dune-testpypi
-        uses: dawidd6/action-download-artifact@v3
-        with:
-          github_token: ${{ secrets.Dispatch_Secret }}
-          workflow: testing.yml
-          workflow_search: true
-          workflow_conclusion: success
-          branch: main
-          name: packages
-          path: dist
-          repo: dune-project/dune-testpypi
-          if_no_artifact_found: fail
-      - name: upload artifacts
-        uses: actions/upload-artifact@v3
+      - name: download artifacts
+        uses: actions/download-artifact@v3
+        # if all packages exist on pypi then no artifacts are uploaded so don't fail
+        continue-on-error: true
         with:
           name: packages
           path: dist
