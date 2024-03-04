@@ -90,8 +90,8 @@ jobs:
           repo: dune-project/dune-testpypi
           branch: main
           workflow: testing.yml
-          # workflow_search: true
-          run_id: ${{ steps.return_dispatch.outputs.run_id }}
+          workflow_search: true   # find the latest - might fail...
+          # not sure but this does not seem to be the correct run_id: ${{ steps.return_dispatch.outputs.run_id }}
           workflow_conclusion: success
           name: packages
           path: dist
