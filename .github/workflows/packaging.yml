@@ -70,7 +70,6 @@ jobs:
           token: ${{ secrets.Dispatch_Secret }}
           repo: dune-testpypi
           owner: dune-project
-          ref: main
           workflow: testing.yml
           workflow_inputs: '{ "logLevel":  "${{ github.event.inputs.logLevel }}", "branch":    "${{ github.event.inputs.branch }}", "fembranch": "${{ github.event.inputs.fembranch }}" }'
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
