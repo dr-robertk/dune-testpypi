@@ -1,0 +1,234 @@
+name: upload packages
+
+# Controls when the action will run.
+on:
+  # schedule test for nightly build
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    # Note: the defaults are repeated within the 'env' section
+    #       of some of the jobs so any change to the default
+    #       need to be done (at least) twice!
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'Warning'
+      download:
+        description: 'download location ( dune | lund )'
+        required: true
+        default: 'dune'
+      upload:
+        description: 'upload (none | testpypi | pypi)'
+        required: true
+        default: 'none'
+      branch:
+        # note: this should be either 'master' or a tag of the form
+        #       vN where 'N' is a legal python package version
+        #       e.g. N=2.8.0rc1
+        #       otherwise the distributions will not be generated
+        #       and the build will fail
+        description: 'core tag e.g. (master | v2.8.0) [master]'
+        required: true
+        default: 'master'
+      fembranch:
+        # note: this should be either 'master' or a tag of the form
+        #       vN where 'N' is a legal python package version
+        #       e.g. N=2.8.0rc1
+        #       otherwise the distributions will not be generated
+        #       and the build will fail
+        description: 'fem tag e.g. (master | v2.8.0.1) [master]'
+        required: true
+        default: 'master'
+      femversion:
+        description: 'install dune-fem package == version - leave empty if you want to use latest version'
+        required: false
+        default: ''
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # build packages
+  build:
+    name: build
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: printParameters
+        run: |
+          echo "Workflow parameters"
+          echo "Using github branch   : ${GITHUB_REF#refs/heads/}"
+          echo "Using log level       : ${{ github.event.inputs.logLevel }}"
+          echo "Using download        : ${{ github.event.inputs.download }}"
+          echo "Using upload          : ${{ github.event.inputs.upload }}"
+          echo "Using dune-core branch: ${{ github.event.inputs.branch }}"
+          echo "Using dune-fem  branch: ${{ github.event.inputs.fembranch }}"
+          echo "Using dune-fem  branch: ${{ github.event.inputs.femversion }}"
+      - name: starting
+        uses: actions/checkout@v3
+      - name: Test on dune/dune-testpypi and get the run ID
+        uses: codex-/return-dispatch@v1
+        id: return_dispatch
+        with:
+          token: ${{ secrets.Dispatch_Secret }}
+          repo: dune-project/dune-testpypi
+          workflow: testing.yml
+          event-type: run-tests
+          workflow_inputs: |-
+            {
+              "logLevel":  "${{ github.event.inputs.logLevel }}",
+              "branch":    "${{ github.event.inputs.branch }}",
+              "fembranch": "${{ github.event.inputs.fembranch }}",
+              "download":  "${{ github.event.inputs.download }}",
+            }
+      - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
+        uses: Codex-/await-remote-run@v1.0.0
+        with:
+          token: ${{ secrets.Dispatch_Secret }}
+          repo: dune-project/dune-testpypi
+          run_id: ${{ steps.return_dispatch.outputs.run_id }}
+          run_timeout_seconds: 7200
+          poll_interval_ms: 5000
+
+  # test packages
+  test:
+    name: testing tutorial
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+        test: [coreA, coreB, extensions]
+        python: [3.8, 3.11]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: starting
+        uses: actions/checkout@v3
+      - name: pipPreOrNot
+        run: |
+          echo "PIPPRE=--pre" >> $GITHUB_ENV
+      - name: setup python ${{ matrix.python }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install dependencies
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            # note: using 'apt-get -o Acquire::Retries=3' to dance around connectivity issues to Azure,
+            # use apt-spy2 to select closest apt mirror,
+            # which helps avoid connectivity issues in Azure;
+            # see https://github.com/actions/virtual-environments/issues/675
+            sudo gem install apt-spy2
+            sudo apt-spy2 check
+            sudo apt-spy2 fix --commit
+            # after selecting a specific mirror, we need to run 'apt-get update'
+            sudo apt-get update -o Acquire::Retries=3
+            sudo apt upgrade -y
+            sudo apt-get install libopenmpi-dev openmpi-bin libsuperlu-dev libsuitesparse-dev petsc-dev gmsh python3-petsc4py-real
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            rm -rf /usr/local/bin/2to3 # otherwise a python upgrade fails in next step
+            brew update
+            brew install openmpi superlu suite-sparse gmsh boost
+          fi
+        shell: bash
+      - name: download artifacts from dune-testpypi
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.Dispatch_Secret }}
+          workflow: testing.yml
+          workflow_conclusion: success
+          branch: master
+          name: packages
+          path: dist
+          repo: dune-project/dune-testpypi
+          if_no_artifact_found: fail
+      - name: Setup venv
+        run: |
+          python3 -m venv dune-env
+          source dune-env/bin/activate
+          PYVERS=$(python3 --version)
+          echo "Selected python version $PYVERS"
+          pip3 install --upgrade pip
+          pip3 install matplotlib scipy scikit-build mpi4py pygmsh wheel
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            echo "CURRENTLY PETSC4PY IS DISABLED"
+            # petsc4py is failing at the moment - need to check
+            # at the moment need to downgrade to 20.0.2 https://gitlab.com/petsc/petsc/-/issues/1369
+            # PETSC_CONFIGURE_OPTIONS="--download-scalapack --download-suitesparse --download-hypre --download-mumps --download-ml --download-superlu"
+            # pip3 install -v petsc petsc4py
+          else
+            echo "CURRENTLY PETSC4PY IS DISABLED on MACOs due to issues with mpif90 - needs checking"
+            # while building petsc the following error is produced
+            #     Fortran compiler you provided with --with-fc=/usr/local/bin/mpif90 cannot be found or does not work.
+            #     Cannot compile FC with /usr/local/bin/mpif90.
+          fi
+        shell: bash
+      - name: pip3 install dune modules
+        run: |
+          ls dist
+          source dune-env/bin/activate
+          pip3 install extract-version
+          python extractreq.py
+          cat requirements.txt
+          if [ "$FEMVERSION" == "" ]; then
+            pip3 install $PIPPRE  -U -v --find-links file://$PWD/dist -r requirements.txt
+          else
+            pip3 install $PIPPRE  -U -v --find-links file://$PWD/dist -r requirements.txt
+          fi
+        shell: bash
+      - name: Setup dune-py
+        run: |
+          set +e
+          source dune-env/bin/activate
+          pip3 list
+          python -m dune.fem # tutorial
+        shell: bash
+      - name: Run tutorial
+        run: |
+          set +e
+          source dune-env/bin/activate
+          echo "USING python"
+          python --version
+          export DUNEPY_DISABLE_PLOTTING=1
+          export DUNE_LOG_LEVEL=$LOGLEVEL
+          cd fem_tutorial
+          python ../run-tutorial.py ${{ matrix.test }}
+        shell: bash
+
+  # https://github.com/marketplace/actions/pypi-publish
+  upload:
+    name: uploading
+    needs: test
+    env:
+      UPLOAD: none
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: environment
+        if: github.client_payload.caller.upload != ''
+        run: echo "UPLOAD=${{ github.event.inputs.upload }}" >> $GITHUB_ENV
+      - name: download artifacts
+        uses: actions/download-artifact@v3
+        continue-on-error: true
+        with:
+          name: packages
+          path: dist
+      - name: remove repository tar.gz since it can't be uploaded
+        run: |
+          rm dist/repos.tar.gz
+        shell: bash
+      - name: Publish package to ${{ env.UPLOAD }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        if: ${{ env.UPLOAD == 'pypi' }}
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Publish package to ${{ env.UPLOAD }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        if: ${{ env.UPLOAD == 'testpypi' }}
+        with:
+          user: __token__
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
+          ## this is needed so long as versioning for
+          ## fem and core packages can differ (i.e. 2.8.0.x) but are uploaded
+          ## in same script.
+          ## Test if required version for core is available on pypi and use
+          ## instead of git?
+          # skip_existing: true
