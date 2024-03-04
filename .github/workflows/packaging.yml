@@ -132,7 +132,7 @@ jobs:
             sudo apt upgrade -y
             sudo apt-get install libopenmpi-dev openmpi-bin libsuperlu-dev libsuitesparse-dev petsc-dev gmsh python3-petsc4py-real
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            rm -rf /usr/local/bin/2to3.* # otherwise a python upgrade fails in next step
+            rm -rf /usr/local/bin/2to3* # otherwise a python upgrade fails in next step
             brew update
             brew install openmpi superlu suite-sparse gmsh boost
           fi
