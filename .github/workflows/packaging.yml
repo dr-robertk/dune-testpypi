@@ -69,8 +69,8 @@ jobs:
         with:
           token: ${{ secrets.Dispatch_Secret }}
           repo: dune-project/dune-testpypi
+          ref: main
           workflow: testing.yml
-          event-type: run-tests
           workflow_inputs: |-
             {
               "logLevel":  "${{ github.event.inputs.logLevel }}",
