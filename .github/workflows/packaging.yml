@@ -130,9 +130,10 @@ jobs:
         with:
           github_token: ${{ secrets.Dispatch_Secret }}
           workflow: testing.yml
+          workflow_search: true
           workflow_conclusion: success
           branch: master
-          name: packages
+          # name: packages
           path: dist
           repo: dune-project/dune-testpypi
           if_no_artifact_found: fail
