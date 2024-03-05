@@ -1,0 +1,71 @@
+syncmodule()
+{
+  set +e
+  m=$1 # module name (name.git)
+  p=$2 # module path (dune-project's gitlab)
+  git clone --mirror $p $m
+  cd $m
+  git fetch
+  git push --mirror https://github.com/adedner/$m
+  cd ..
+  rm -rf $m
+}
+
+tagmodule()
+{
+  set +e
+  m=$1 # module name (name.git)
+  t=$2 # new module tag
+  git clone https://github.com/adedner/$m $m
+  cd $m
+  git checkout master
+  git tag -a $t -m "from github action"
+  git push origin $t
+  cd ..
+  rm -rf $m
+}
+
+base="https://gitlab.dune-project.org"
+coreurl="$base/core"
+femurl="$base/dune-fem"
+exturl="$base/extensions"
+
+declare -A coremodules
+coremodules+=(
+  [dune-common]='dune-common.git'
+  [dune-geometry]='dune-geometry.git'
+  [dune-grid]='dune-grid.git'
+  [dune-istl]='dune-istl.git'
+  [dune-localfunctions]='dune-localfunctions.git'
+)
+declare -A femmodules
+femmodules=(
+  [dune-fem]='dune-fem.git'
+  [dune-fem-dg]='dune-fem-dg.git'
+  [dune-vem]='dune-vem.git'
+)
+declare -A extramodules
+extramodules=(
+  [dune-alugrid]='dune-alugrid.git'
+  [dune-polygongrid]='dune-polygongrid.git'
+  [dune-spgrid]='dune-spgrid.git'
+)
+
+echo "Syncingg core modules"
+for m in "${!coremodules[@]}" ; do
+  p="${coremodules[$m]}"
+  syncmodule $m "$coreurl/$p"
+  tagmodule $m `date -Idate`
+done
+echo "Syncing fem modules"
+for m in "${!femmodules[@]}" ; do
+  p="${femmodules[$m]}"
+  syncmodule $m "$femurl/$p"
+  tagmodule $m `date -Idate`
+done
+echo "Syncing extra modules"
+for m in "${!extramodules[@]}" ; do
+  p="${extramodules[$m]}"
+  syncmodule $m "$exturl/$p"
+  tagmodule $m `date -Idate`
+done

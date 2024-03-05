@@ -1,0 +1,19 @@
+---
+name: sync and tag mirrors
+# yamllint disable rule:line-length
+
+# Controls when the action will run.
+on:        # yamllint disable-line rule:truthy
+  workflow_dispatch:
+
+jobs:
+  # build packages
+  synctag:
+    name: sync and tag
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: starting
+        uses: actions/checkout@v4
+      - name: execute script
+        run: bash ./syncmirror
+        shell: bash
