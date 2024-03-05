@@ -36,7 +36,7 @@ tagmodule()
 base="https://gitlab.dune-project.org"
 coreurl="$base/core"
 femurl="$base/dune-fem"
-xturl="$base/extensions"
+exturl="$base/extensions"
 
 declare -A coremodules
 coremodules+=(
