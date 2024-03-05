@@ -14,6 +14,17 @@ syncmodule()
   git clone --mirror $p $m
   cd $m
   git fetch
+
+  if [ "$m" = "dune-alugrid.git" ] ; then
+    # this rewrites the history of dune-alugrid to exclude some '*.out'
+    # files which are too large. Note that every commit hash changes but
+    # the origin is stored in the new log message
+    cd ..
+    java -jar bfg.jar --strip-blobs-bigger-than 90M dune-alugrid.git
+    cd $m
+    git reflog expire --expire=now --all && git gc --prune=now --aggressive
+  fi
+
   git push --mirror https://user:$PAT@github.com/adedner/$m
   cd ..
   rm -rf $m
