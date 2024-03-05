@@ -15,7 +15,9 @@ syncmodule()
   cd $m
   git fetch
 
+  echo $m
   if [ "$m" = "dune-alugrid.git" ] ; then
+    echo "running bfg.jar..."
     # this rewrites the history of dune-alugrid to exclude some '*.out'
     # files which are too large. Note that every commit hash changes but
     # the origin is stored in the new log message
