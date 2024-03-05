@@ -6,7 +6,7 @@ syncmodule()
   git clone --mirror $p $m
   cd $m
   git fetch
-  git push --mirror https://github.com/adedner/$m
+  git push --mirror https://user:$GITHUB_TOKEN@github.com/adedner/$m
   cd ..
   rm -rf $m
 }
@@ -51,21 +51,21 @@ extramodules=(
   [dune-spgrid]='dune-spgrid.git'
 )
 
-echo "Syncingg core modules"
+echo "Syncing core modules"
 for m in "${!coremodules[@]}" ; do
   p="${coremodules[$m]}"
   syncmodule $m "$coreurl/$p"
-  tagmodule $m `date -Idate`
+  # tagmodule $m `date -Idate`
 done
 echo "Syncing fem modules"
 for m in "${!femmodules[@]}" ; do
   p="${femmodules[$m]}"
   syncmodule $m "$femurl/$p"
-  tagmodule $m `date -Idate`
+  # tagmodule $m `date -Idate`
 done
 echo "Syncing extra modules"
 for m in "${!extramodules[@]}" ; do
   p="${extramodules[$m]}"
   syncmodule $m "$exturl/$p"
-  tagmodule $m `date -Idate`
+  # tagmodule $m `date -Idate`
 done
