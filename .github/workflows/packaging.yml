@@ -74,7 +74,7 @@ jobs:
           echo "Workflow parameters"
           echo "Using github branch   : ${GITHUB_REF#refs/heads/}"
           echo "Using log level       : ${{ github.event.inputs.logLevel }}"
-          echo "Using download        : ${{ github.event.env.DOWNURL }}"
+          echo "Using download        : ${{ env.DOWNURL }}"
           echo "Using upload          : ${{ github.event.inputs.upload }}"
           echo "Using dune-core branch: ${{ github.event.inputs.branch }}"
           echo "Using dune-fem  branch: ${{ github.event.inputs.fembranch }}"
@@ -91,7 +91,7 @@ jobs:
           owner: dune-project
           ref: ${{ github.ref }}
           workflow: testing.yml
-          workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}", "branch": "${{ github.event.inputs.branch }}", "fembranch": "${{ github.event.inputs.fembranch }}", "download": "${{ github.env.DOWNURL }}", "runTests": github.env.RUNTESTS }'
+          workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}", "branch": "${{ github.event.inputs.branch }}", "fembranch": "${{ github.event.inputs.fembranch }}", "download": "${{ env.DOWNURL }}", "runTests": env.RUNTESTS }'
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
         uses: Codex-/await-remote-run@v1.0.0
         with:
