@@ -8,7 +8,6 @@ on:        # yamllint disable-line rule:truthy
 
 jobs:
   # build packages
-  repository-projects
   synctag:
     name: sync and tag
     runs-on: [ubuntu-latest]
