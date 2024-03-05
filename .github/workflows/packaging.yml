@@ -16,13 +16,22 @@ on:        # yamllint disable-line rule:truthy
         required: true
         default: 'Warning'
       download:
-        description: 'download location ( dune | lund )'
+        type: choice
+        description: 'download location ( dune | lund ) [dune]'
         required: true
         default: 'dune'
+        options:
+        - dune
+        - lund
       upload:
-        description: 'upload (none | testpypi | pypi)'
+        type: choice
+        description: 'upload (none | testpypi | pypi) [none]'
         required: true
         default: 'none'
+        options:
+        - none
+        - pypi
+        - testpypi
       branch:
         # note: this should be either 'master' or a tag of the form
         #       vN where 'N' is a legal python package version
