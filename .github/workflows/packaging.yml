@@ -1,7 +1,9 @@
+---
 name: upload packages
+# yamllint disable rule:line-length
 
 # Controls when the action will run.
-on:
+on:        # yamllint disable-line rule:truthy
   # schedule test for nightly build
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -39,6 +41,11 @@ on:
         description: 'fem tag e.g. (master | v2.8.0.1) [master]'
         required: true
         default: 'master'
+      runTests:
+        type: boolean
+        description: run testing scenarios [false]
+        required: true
+        default: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -48,6 +55,7 @@ jobs:
     runs-on: [ubuntu-latest]
     env:
       DOWNURL: 'https://gitlab.dune-project.org'
+      RUNTESTS: ${{ !contains(github.event.inputs.runTests, 'false') }}
     steps:
       - name: downloadLund
         if: github.event.inputs.download == 'lund'
@@ -61,6 +69,7 @@ jobs:
           echo "Using upload          : ${{ github.event.inputs.upload }}"
           echo "Using dune-core branch: ${{ github.event.inputs.branch }}"
           echo "Using dune-fem  branch: ${{ github.event.inputs.fembranch }}"
+          echo "Run tests: ${{ github.event.inputs.runTests }}"
           echo "ref: ${{ github.ref }}"
       - name: starting
         uses: actions/checkout@v3
@@ -73,7 +82,7 @@ jobs:
           owner: dune-project
           ref: ${{ github.ref }}
           workflow: testing.yml
-          workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}", "branch": "${{ github.event.inputs.branch }}", "fembranch": "${{ github.event.inputs.fembranch }}", "download": "${{ github.env.DOWNURL }}", "runTests": false }'
+          workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}", "branch": "${{ github.event.inputs.branch }}", "fembranch": "${{ github.event.inputs.fembranch }}", "download": "${{ github.env.DOWNURL }}", "runTests": github.env.RUNTESTS }'
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
         uses: Codex-/await-remote-run@v1.0.0
         with:
