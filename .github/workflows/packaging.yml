@@ -87,7 +87,7 @@ jobs:
           echo "Run tests: ${{ github.event.inputs.runTests }}"
           echo "ref: ${{ github.ref }}"
       - name: starting
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Test on dune/dune-testpypi and get the run ID
         uses: codex-/return-dispatch@v1
         id: return_dispatch
@@ -107,7 +107,7 @@ jobs:
           run_id: ${{ steps.return_dispatch.outputs.run_id }}
           run_timeout_seconds: 7200
           poll_interval_ms: 5000
-      - name: download artifacts from dune-testpypi
+      - name: download artifacts from RUN ID ${{ steps.return_dispatch.outputs.run_id }}
         uses: dawidd6/action-download-artifact@v3
         with:
           github_token: ${{ secrets.Dispatch_Secret }}
@@ -122,7 +122,7 @@ jobs:
           # branch: main
           # workflow_search: true
       - name: upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: packages
           path: dist
@@ -140,7 +140,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: starting
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: pipPreOrNot
         run: |
           echo "PIPPRE=--pre" >> $GITHUB_ENV
