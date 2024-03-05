@@ -8,15 +8,14 @@ git config --global user.name "A Dedner"
 syncmodule()
 {
   set +e
-  echo "x$PATx"
-  m=$1 # module name (name.git)
+  m=$1 # module name (name)
   p=$2 # module path (dune-project's gitlab)
   git clone --mirror $p $m
   cd $m
   git fetch
 
   echo $m
-  if [ "$m" = "dune-alugrid.git" ] ; then
+  if [ "$m" = "dune-alugrid" ] ; then
     echo "running bfg.jar..."
     # this rewrites the history of dune-alugrid to exclude some '*.out'
     # files which are too large. Note that every commit hash changes but
