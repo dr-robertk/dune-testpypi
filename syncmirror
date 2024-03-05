@@ -17,7 +17,7 @@ tagmodule()
   set +e
   m=$1 # module name (name.git)
   t=$2 # new module tag
-  git clone https://github.com/adedner/$m $m
+  git clone https://user:$PAT@github.com/adedner/$m $m
   cd $m
   git checkout master
   git tag -a $t -m "from github action"
@@ -29,7 +29,6 @@ tagmodule()
 base="https://gitlab.dune-project.org"
 coreurl="$base/core"
 femurl="$base/dune-fem"
-exturl="$base/extensions"
 
 declare -A coremodules
 coremodules+=(
@@ -59,17 +58,17 @@ echo "Syncing core modules"
 for m in "${!coremodules[@]}" ; do
   p="${coremodules[$m]}"
   syncmodule $m "$coreurl/$p"
-  # tagmodule $m `date -Idate`
+  tagmodule $m `date -Idate`
 done
 echo "Syncing fem modules"
 for m in "${!femmodules[@]}" ; do
   p="${femmodules[$m]}"
   syncmodule $m "$femurl/$p"
-  # tagmodule $m `date -Idate`
+  tagmodule $m `date -Idate`
 done
 echo "Syncing extra modules"
 for m in "${!extramodules[@]}" ; do
   p="${extramodules[$m]}"
   syncmodule $m "$exturl/$p"
-  # tagmodule $m `date -Idate`
+  tagmodule $m `date -Idate`
 done
