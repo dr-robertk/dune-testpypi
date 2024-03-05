@@ -156,23 +156,8 @@ jobs:
           path: dist
       - name: Install dependencies
         run: |
-          if [ "$RUNNER_OS" == "Linux" ]; then
-            # note: using 'apt-get -o Acquire::Retries=3' to dance around connectivity issues to Azure,
-            # use apt-spy2 to select closest apt mirror,
-            # which helps avoid connectivity issues in Azure;
-            # see https://github.com/actions/virtual-environments/issues/675
-            sudo gem install apt-spy2
-            sudo apt-spy2 check
-            sudo apt-spy2 fix --commit
-            # after selecting a specific mirror, we need to run 'apt-get update'
-            sudo apt-get update -o Acquire::Retries=3
-            sudo apt upgrade -y
-            sudo apt-get install libopenmpi-dev openmpi-bin libsuperlu-dev libsuitesparse-dev petsc-dev gmsh python3-petsc4py-real
-          elif [ "$RUNNER_OS" == "macOS" ]; then
-            # rm -rf /usr/local/bin/2to3* # otherwise a python upgrade fails in next step
-            brew update || true
-            brew install openmpi superlu suite-sparse gmsh boost || true
-          fi
+          curl 'https://raw.githubusercontent.com/dune-project/dune-testpypi/main/ossetup' > ossetup
+          bash ./ossetup "$RUNNER_OS"
         shell: bash
       - name: Setup venv
         run: |
