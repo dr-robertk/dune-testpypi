@@ -6,7 +6,7 @@ syncmodule()
   git clone --mirror $p $m
   cd $m
   git fetch
-  git push --mirror https://user:$GITHUB_TOKEN@github.com/adedner/$m
+  git push --mirror https://github.com/adedner/$m
   cd ..
   rm -rf $m
 }
@@ -50,6 +50,9 @@ extramodules=(
   [dune-polygongrid]='dune-polygongrid.git'
   [dune-spgrid]='dune-spgrid.git'
 )
+
+# needed to avoid issues with authentification
+git config --unset-all http.https://github.com/.extraheader
 
 echo "Syncing core modules"
 for m in "${!coremodules[@]}" ; do
