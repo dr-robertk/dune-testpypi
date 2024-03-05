@@ -99,7 +99,7 @@ jobs:
           workflow: testing.yml
           workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}", "branch": "${{ github.event.inputs.branch }}", "fembranch": "${{ github.event.inputs.fembranch }}", "download": "${{ env.DOWNURL }}", "runTests": "${{ env.RUNTESTS }}" }'
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
-        uses: Codex-/await-remote-run@v1.0.0
+        uses: Codex-/await-remote-run@v1
         with:
           token: ${{ secrets.Dispatch_Secret }}
           repo: dune-testpypi
@@ -113,14 +113,14 @@ jobs:
           github_token: ${{ secrets.Dispatch_Secret }}
           repo: dune-project/dune-testpypi
           workflow: testing.yml
-          # branch: main
-          # workflow_search: true   # find the latest - might fail...
-          # not sure but this does not seem to be the correct
           run_id: ${{ steps.return_dispatch.outputs.run_id }}
           workflow_conclusion: success
           name: packages
           path: dist
           if_no_artifact_found: fail
+          # find the latest - might fail...
+          # branch: main
+          # workflow_search: true
       - name: upload artifacts
         uses: actions/upload-artifact@v3
         with:
