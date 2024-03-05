@@ -145,11 +145,11 @@ jobs:
         run: |
           echo "PIPPRE=--pre" >> $GITHUB_ENV
       - name: setup python ${{ matrix.python }}
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
       - name: download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         # if all packages exist on pypi then no artifacts are uploaded so don't fail
         continue-on-error: true
         with:
@@ -225,7 +225,7 @@ jobs:
         if: github.event.inputs.upload != ''
         run: echo "UPLOAD=${{ github.event.inputs.upload }}" >> $GITHUB_ENV
       - name: download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           name: packages
