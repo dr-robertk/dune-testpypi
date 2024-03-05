@@ -21,7 +21,7 @@ syncmodule()
     # files which are too large. Note that every commit hash changes but
     # the origin is stored in the new log message
     cd ..
-    java -jar bfg.jar --strip-blobs-bigger-than 90M dune-alugrid.git
+    java -jar bfg.jar --strip-blobs-bigger-than 90M $m
     cd $m
     git reflog expire --expire=now --all && git gc --prune=now --aggressive
   fi
