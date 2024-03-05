@@ -1,3 +1,10 @@
+
+# needed to avoid issues with authentification
+git config --unset-all http.https://github.com/.extraheader
+# set identity for tagiing
+git config --global user.email "a.s.dedner@warwick.ac.uk"
+git config --global user.name "A Dedner"
+
 syncmodule()
 {
   set +e
@@ -50,9 +57,6 @@ extramodules=(
   [dune-polygongrid]='dune-polygongrid.git'
   [dune-spgrid]='dune-spgrid.git'
 )
-
-# needed to avoid issues with authentification
-git config --unset-all http.https://github.com/.extraheader
 
 echo "Syncing core modules"
 for m in "${!coremodules[@]}" ; do
