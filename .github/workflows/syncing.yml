@@ -8,9 +8,12 @@ on:        # yamllint disable-line rule:truthy
 
 jobs:
   # build packages
+  repository-projects
   synctag:
     name: sync and tag
     runs-on: [ubuntu-latest]
+    env:
+      PAT: ${{ secrets.Dispatch_Secret }}
     steps:
       - name: starting
         uses: actions/checkout@v4

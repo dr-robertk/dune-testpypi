@@ -1,12 +1,13 @@
 syncmodule()
 {
   set +e
+  echo "x$PATx"
   m=$1 # module name (name.git)
   p=$2 # module path (dune-project's gitlab)
   git clone --mirror $p $m
   cd $m
   git fetch
-  git push --mirror https://github.com/adedner/$m
+  git push --mirror https://user:$PAT@github.com/adedner/$m
   cd ..
   rm -rf $m
 }
