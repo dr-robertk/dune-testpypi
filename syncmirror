@@ -1,18 +1,6 @@
 tag=$1
 branch=$2
 
-if [ "$tag" = "automatic" ] ; then
-  git clone --depth 1 -b $branch https://gitlab.dune-project.org/core/dune-common
-  ver=`grep "Version" dune-common/dune.module | cut -d ":" -f 2 | cut -d "-" -f 1 | tr -d '[:space:]'`
-  if [ "x$ver" = "x" ] ; then
-    echo "Automatic tagging only on master branch for now (expect '-git' in version string)"
-    exit 1
-  fi
-  tag=$ver.dev`date +%Y%m%d`
-  rm -rf dune-common
-  echo "Using tag=$tag"
-fi
-
 # needed to avoid issues with authentification
 git config --unset-all http.https://github.com/.extraheader
 # set identity for tagging
