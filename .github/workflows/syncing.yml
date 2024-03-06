@@ -48,6 +48,7 @@ jobs:
       PAT: ${{ secrets.Dispatch_Secret }}
       TAG: ${{ github.event.inputs.tag }}
       BRANCH: ${{ github.event.inputs.branch }}
+      RUNTESTS: ${{ !contains(github.event.inputs.runTests, 'false') }}
     steps:
       - name: starting
         uses: actions/checkout@v4
@@ -78,25 +79,18 @@ jobs:
       - name: execute script
         run: bash ./syncmirror $TAG $BRANCH
         shell: bash
-  build:
-    needs: synctag
-    name: build
-    runs-on: [ubuntu-latest]
-    env:
-      RUNTESTS: ${{ !contains(github.event.inputs.runTests, 'false') }}
-    steps:
       - name: Run packaging workflow and get run ID
         uses: codex-/return-dispatch@v1
         id: return_dispatch
         with:
           token: ${{ secrets.Dispatch_Secret }}
-          repo: dune-testpypi
+          repo: dune-testpypI
           owner: adedner
           ref: ${{ github.ref }}
           workflow: packaging.yml
           workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}",
-                              "branch": "${{ github.event.inputs.tag }}",
-                              "fembranch": "${{ github.event.inputs.tag }}",
+                              "branch": "${{ env.tag }}",
+                              "fembranch": "${{ env.tag }}",
                               "download": "github",
                               "upload": "${{ github.event.inputs.upload }}",
                               "runTests": "${{ env.RUNTESTS }}" }'
