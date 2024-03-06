@@ -7,6 +7,10 @@ if ["$tag"="automatic"] ; then
   tag=$ver.dev`date +%Y%m%d`
   rm -rf dune-common
   echo "Using tag=$tag"
+  if [ "x$tag" = "x" ] ; then
+    echo "Automatic tagging only on master branch for now (expect '-git' in version string)"
+    exit 1
+  fi
 fi
 
 # needed to avoid issues with authentification
