@@ -43,7 +43,7 @@ syncmodule()
   cd gh$m
   git checkout $b
   # now push the older tags
-  git push --tags
+  # git push --tags
 
   # get the new data from the mirror step
   git fetch
