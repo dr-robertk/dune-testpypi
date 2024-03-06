@@ -73,19 +73,19 @@ extramodules=(
   [dune-spgrid]='dune-spgrid.git'
 )
 
-echo "Syncing core modules"
+echo "Syncing core modules and tagging with $tag"
 for m in "${!coremodules[@]}" ; do
   p="${coremodules[$m]}"
   syncmodule $m "$coreurl/$p"
   tagmodule $m $tag $branch
 done
-echo "Syncing fem modules"
+echo "Syncing fem modules and tagging with $tag"
 for m in "${!femmodules[@]}" ; do
   p="${femmodules[$m]}"
   syncmodule $m "$femurl/$p"
   tagmodule $m $tag $branch
 done
-echo "Syncing extra modules"
+echo "Syncing extension modules and tagging with $tag"
 for m in "${!extramodules[@]}" ; do
   p="${extramodules[$m]}"
   syncmodule $m "$exturl/$p"

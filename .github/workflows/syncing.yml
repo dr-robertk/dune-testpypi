@@ -60,11 +60,11 @@ jobs:
         run: echo "BRANCH=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
       - name: generatetag
         if: env.TAG == 'automatic'
+        # current version uses the type of pre-release tags used so far, i.e., x.y.devDate
+        # This could be changed to check latest tag of the form x.y.z.r in the
+        # dune-common mirror and returning the tag x.y.z.r+1
         run: |
-          # current version uses the type of pre-release tags used so far, i.e., x.y.devDate
-          # This could be changed to check latest tag of the form x.y.z.r in the
-          # dune-common mirror and returning the tag x.y.z.r+1
-          git clone --depth 1 -b $branch https://gitlab.dune-project.org/core/dune-common
+          git clone --depth 1 -b $BRANCH https://gitlab.dune-project.org/core/dune-common
           ver=`grep "Version" dune-common/dune.module | cut -d ":" -f 2 | cut -d "-" -f 1 | tr -d '[:space:]'`
           if [ "x$ver" = "x" ] ; then
             echo "Automatic tagging only on master branch for now (expect '-git' in version string)"
