@@ -79,7 +79,6 @@ jobs:
         run: bash ./syncmirror $TAG $BRANCH
         shell: bash
       - name: Run packaging workflow and get run ID
-        if: false
         uses: codex-/return-dispatch@v1
         id: return_dispatch
         with:
@@ -95,7 +94,6 @@ jobs:
                               "upload": "${{ github.event.inputs.upload }}",
                               "runTests": "${{ env.RUNTESTS }}" }'
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
-        if: false
         uses: Codex-/await-remote-run@v1
         with:
           token: ${{ secrets.Dispatch_Secret }}
@@ -105,7 +103,6 @@ jobs:
           run_timeout_seconds: 7200
           poll_interval_ms: 5000
       - name: download artifacts from RUN ID ${{ steps.return_dispatch.outputs.run_id }}
-        if: false
         uses: dawidd6/action-download-artifact@v3
         with:
           github_token: ${{ secrets.Dispatch_Secret }}
@@ -117,7 +114,6 @@ jobs:
           path: dist
           if_no_artifact_found: fail
       - name: upload artifacts
-        if: false
         uses: actions/upload-artifact@v4
         with:
           name: packages
