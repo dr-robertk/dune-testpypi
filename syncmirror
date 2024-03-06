@@ -1,7 +1,17 @@
+tag=$1
+branch=$2
+
+if ["$tag"="automatic"] ; then
+  git clone --depth 1 -b $branch https://gitlab.dune-project.org/core/dune-common
+  ver=`grep "Version" ../dune-common/dune.module | cut -d ":" -f 2 | cut -d "-" -f 1 | tr -d '[:space:]'`
+  tag=$ver.dev`date +%Y%m%d`
+  rm -rf dune-common
+  echo "Using tag=$tag"
+fi
 
 # needed to avoid issues with authentification
 git config --unset-all http.https://github.com/.extraheader
-# set identity for tagiing
+# set identity for tagging
 git config --global user.email "a.s.dedner@warwick.ac.uk"
 git config --global user.name "A Dedner"
 
@@ -14,7 +24,6 @@ syncmodule()
   cd $m
   git fetch
 
-  echo $m
   if [ "$m" = "dune-alugrid" ] ; then
     echo "running bfg.jar..."
     # this rewrites the history of dune-alugrid to exclude some '*.out'
@@ -36,9 +45,10 @@ tagmodule()
   set +e
   m=$1 # module name (name.git)
   t=$2 # new module tag
+  b=$3 # branch to checkout
   git clone https://user:$PAT@github.com/adedner/$m $m
   cd $m
-  git checkout master
+  git checkout $b # there is no 'main' so no default at the moment
   git tag -a $t -m "from github action"
   git push origin $t
   cd ..
@@ -75,17 +85,17 @@ echo "Syncing core modules"
 for m in "${!coremodules[@]}" ; do
   p="${coremodules[$m]}"
   syncmodule $m "$coreurl/$p"
-  tagmodule $m `date -Idate`
+  tagmodule $m $tag $branch
 done
 echo "Syncing fem modules"
 for m in "${!femmodules[@]}" ; do
   p="${femmodules[$m]}"
   syncmodule $m "$femurl/$p"
-  tagmodule $m `date -Idate`
+  tagmodule $m $tag $branch
 done
 echo "Syncing extra modules"
 for m in "${!extramodules[@]}" ; do
   p="${extramodules[$m]}"
   syncmodule $m "$exturl/$p"
-  tagmodule $m `date -Idate`
+  tagmodule $m $tag $branch
 done

@@ -5,6 +5,39 @@ name: sync and tag mirrors
 # Controls when the action will run.
 on:        # yamllint disable-line rule:truthy
   workflow_dispatch:
+    inputs:
+      upload:
+        type: choice
+        description: 'upload (none | testpypi | pypi) [none]'
+        required: true
+        default: 'none'
+        options:
+          - none
+          - pypi
+          - testpypi
+      tag:
+        description: 'tag for package'
+        required: true
+        default: 'automatic'
+      branch:
+        description: 'branch to tag'
+        required: true
+        default: 'master'
+      runTests:
+        type: boolean
+        description: run testing scenarios [false]
+        required: true
+        default: true
+      logLevel:
+        type: choice
+        description: 'Log level [Warning]'
+        required: true
+        default: 'Warning'
+        options:
+          - Debug
+          - Warning
+          - Info
+          - error
 
 jobs:
   # build packages
@@ -13,9 +46,63 @@ jobs:
     runs-on: [ubuntu-latest]
     env:
       PAT: ${{ secrets.Dispatch_Secret }}
+      TAG: ${{ github.event.inputs.tag }}
+      BRANCH: ${{ github.event.inputs.branch }}
     steps:
       - name: starting
         uses: actions/checkout@v4
+      - name: settag
+        if: github.event.inputs.tag != ''
+        run: echo "BRANCH=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+      - name: setbranch
+        if: github.event.inputs.branch != ''
+        run: echo "BRANCH=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
       - name: execute script
-        run: bash ./syncmirror
+        run: bash ./syncmirror $TAG $BRANCH
         shell: bash
+  build:
+    name: build
+    runs-on: [ubuntu-latest]
+    env:
+      RUNTESTS: ${{ !contains(github.event.inputs.runTests, 'false') }}
+    steps:
+      - name: Run packaging workflow and get run ID
+        uses: codex-/return-dispatch@v1
+        id: return_dispatch
+        with:
+          token: ${{ secrets.Dispatch_Secret }}
+          # repo: dune-testpypi
+          # owner: dune-project
+          # ref: ${{ github.ref }}
+          workflow: packaging.yml
+          workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}",
+                              "branch": "${{ github.event.inputs.tag }}",
+                              "fembranch": "${{ github.event.inputs.tag }}",
+                              "download": "github",
+                              "upload": "${{ github.event.inputs.upload }}",
+                              "runTests": "${{ env.RUNTESTS }}" }'
+      - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
+        uses: Codex-/await-remote-run@v1
+        with:
+          token: ${{ secrets.Dispatch_Secret }}
+          # repo: dune-testpypi
+          # owner: dune-project
+          run_id: ${{ steps.return_dispatch.outputs.run_id }}
+          run_timeout_seconds: 7200
+          poll_interval_ms: 5000
+      - name: download artifacts from RUN ID ${{ steps.return_dispatch.outputs.run_id }}
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.Dispatch_Secret }}
+          # repo: dune-project/dune-testpypi
+          workflow: packaging.yml
+          run_id: ${{ steps.return_dispatch.outputs.run_id }}
+          workflow_conclusion: success
+          name: packages
+          path: dist
+          if_no_artifact_found: fail
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: dist

@@ -18,6 +18,7 @@ on:        # yamllint disable-line rule:truthy
         default: 'dune'
         options:
           - dune
+          - github
           - lund
       upload:
         type: choice
@@ -61,6 +62,10 @@ on:        # yamllint disable-line rule:truthy
           - Warning
           - Info
           - error
+      # needed only for dispatching from other repo
+      distinct_id:
+        required: false
+        description: 'set when dispatching from external repo - leave empty'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -72,6 +77,12 @@ jobs:
       DOWNURL: 'https://gitlab.dune-project.org'
       RUNTESTS: ${{ !contains(github.event.inputs.runTests, 'false') }}
     steps:
+      - name: echo distinct ID ${{ github.event.inputs.distinct_id }}
+        if: github.event.inputs.distinct_id != ''
+        run: echo ${{ github.event.inputs.distinct_id }}
+      - name: downloadGithub
+        if: github.event.inputs.download == 'github'
+        run: echo "DOWNURL=https://github.com/adedner" >> $GITHUB_ENV
       - name: downloadLund
         if: github.event.inputs.download == 'lund'
         run: echo "DOWNURL=https://gitlab.maths.lu.se/dune" >> $GITHUB_ENV
