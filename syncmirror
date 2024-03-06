@@ -1,7 +1,7 @@
 tag=$1
 branch=$2
 
-if ["$tag"="automatic"] ; then
+if [ "$tag" = "automatic" ] ; then
   git clone --depth 1 -b $branch https://gitlab.dune-project.org/core/dune-common
   ver=`grep "Version" ../dune-common/dune.module | cut -d ":" -f 2 | cut -d "-" -f 1 | tr -d '[:space:]'`
   tag=$ver.dev`date +%Y%m%d`

@@ -61,6 +61,7 @@ jobs:
         run: bash ./syncmirror $TAG $BRANCH
         shell: bash
   build:
+    needs: synctag
     name: build
     runs-on: [ubuntu-latest]
     env:
@@ -71,9 +72,9 @@ jobs:
         id: return_dispatch
         with:
           token: ${{ secrets.Dispatch_Secret }}
-          # repo: dune-testpypi
-          # owner: dune-project
-          # ref: ${{ github.ref }}
+          repo: dune-testpypi
+          owner: adedner
+          ref: ${{ github.ref }}
           workflow: packaging.yml
           workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}",
                               "branch": "${{ github.event.inputs.tag }}",
@@ -85,8 +86,8 @@ jobs:
         uses: Codex-/await-remote-run@v1
         with:
           token: ${{ secrets.Dispatch_Secret }}
-          # repo: dune-testpypi
-          # owner: dune-project
+          repo: dune-testpypi
+          owner: adedner
           run_id: ${{ steps.return_dispatch.outputs.run_id }}
           run_timeout_seconds: 7200
           poll_interval_ms: 5000
@@ -94,7 +95,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v3
         with:
           github_token: ${{ secrets.Dispatch_Secret }}
-          # repo: dune-project/dune-testpypi
+          repo: adedner/dune-testpypi
           workflow: packaging.yml
           run_id: ${{ steps.return_dispatch.outputs.run_id }}
           workflow_conclusion: success
