@@ -41,6 +41,7 @@ syncmodule()
   rm -rf $m
   
   cd gh$m
+  git checkout $b
   # now push the older tags
   git push --tags
 
@@ -83,17 +84,17 @@ extramodules=(
   [dune-spgrid]='dune-spgrid.git'
 )
 
-echo "Syncing core modules and tagging with $tag"
+echo "Syncing core modules and tagging branch $branch with $tag"
 for m in "${!coremodules[@]}" ; do
   p="${coremodules[$m]}"
   syncmodule $m "$coreurl/$p" $tag $branch
 done
-echo "Syncing fem modules and tagging with $tag"
+echo "Syncing fem modules and tagging branch $branch with $tag"
 for m in "${!femmodules[@]}" ; do
   p="${femmodules[$m]}"
   syncmodule $m "$femurl/$p" $tag $branch
 done
-echo "Syncing extension modules and tagging with $tag"
+echo "Syncing extension modules and tagging branch $branch with $tag"
 for m in "${!extramodules[@]}" ; do
   p="${extramodules[$m]}"
   syncmodule $m "$exturl/$p" $tag $branch
