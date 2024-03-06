@@ -59,7 +59,7 @@ jobs:
         if: github.event.inputs.branch != ''
         run: echo "BRANCH=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
       - name: generatetag
-        if: env.tag == 'automatic'
+        if: env.TAG == 'automatic'
         run: |
           # current version uses the type of pre-release tags used so far, i.e., x.y.devDate
           # This could be changed to check latest tag of the form x.y.z.r in the
@@ -88,8 +88,8 @@ jobs:
           ref: ${{ github.ref }}
           workflow: packaging.yml
           workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}",
-                              "branch": "${{ env.tag }}",
-                              "fembranch": "${{ env.tag }}",
+                              "branch": "${{ env.TAG }}",
+                              "fembranch": "${{ env.TAG }}",
                               "download": "github",
                               "upload": "${{ github.event.inputs.upload }}",
                               "runTests": "${{ env.RUNTESTS }}" }'
