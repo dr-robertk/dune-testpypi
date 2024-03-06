@@ -12,9 +12,17 @@ syncmodule()
   set +e
   m=$1 # module name (name)
   p=$2 # module path (dune-project's gitlab)
+  t=$3 # new module tag
+  b=$4 # branch to tag
+
+  # first checkout the current version of the git repo this will make it
+  # possible to later push the tags generated on github which are lost
+  # during the mirroring process:
+  git clone https://user:$PAT@github.com/adedner/$m gh$m
+
+  # now clone the original
   git clone --mirror $p $m
   cd $m
-  git fetch
 
   if [ "$m" = "dune-alugrid" ] ; then
     echo "running bfg.jar..."
@@ -27,24 +35,26 @@ syncmodule()
     git reflog expire --expire=now --all && git gc --prune=now --aggressive
   fi
 
+  # mirror to github and remove original repo
   git push --mirror https://user:$PAT@github.com/adedner/$m
   cd ..
   rm -rf $m
-}
+  
+  cd gh$m
+  # now push the older tags
+  git push --tags
 
-tagmodule()
-{
-  set +e
-  m=$1 # module name (name.git)
-  t=$2 # new module tag
-  b=$3 # branch to checkout
-  git clone https://user:$PAT@github.com/adedner/$m $m
-  cd $m
-  git checkout $b # there is no 'main' so no default at the moment
+  # get the new data from the mirror step
+  git fetch
+  git pull
+
+  # generate the new tag and push it
   git tag -a $t -m "from github action"
   git push origin $t
+
+  # remove gh repo
   cd ..
-  rm -rf $m
+  rm -rf gh$m
 }
 
 base="https://gitlab.dune-project.org"
@@ -76,18 +86,15 @@ extramodules=(
 echo "Syncing core modules and tagging with $tag"
 for m in "${!coremodules[@]}" ; do
   p="${coremodules[$m]}"
-  syncmodule $m "$coreurl/$p"
-  tagmodule $m $tag $branch
+  syncmodule $m "$coreurl/$p" $tag $branch
 done
 echo "Syncing fem modules and tagging with $tag"
 for m in "${!femmodules[@]}" ; do
   p="${femmodules[$m]}"
-  syncmodule $m "$femurl/$p"
-  tagmodule $m $tag $branch
+  syncmodule $m "$femurl/$p" $tag $branch
 done
 echo "Syncing extension modules and tagging with $tag"
 for m in "${!extramodules[@]}" ; do
   p="${extramodules[$m]}"
-  syncmodule $m "$exturl/$p"
-  tagmodule $m $tag $branch
+  syncmodule $m "$exturl/$p" $tag $branch
 done
