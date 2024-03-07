@@ -113,6 +113,10 @@ jobs:
           name: packages
           path: dist
           if_no_artifact_found: fail
+      - name: remove tag on failure
+        if: failure()
+        run: bash ./syncmirror "failed-$TAG" $BRANCH $TAG
+        shell: bash
       - name: upload artifacts
         uses: actions/upload-artifact@v4
         with:
