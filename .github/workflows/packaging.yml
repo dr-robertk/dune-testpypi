@@ -199,11 +199,7 @@ jobs:
           pip3 install extract-version
           python extractreq.py
           cat requirements.txt
-          if [ "$FEMVERSION" == "" ]; then
-            pip3 install $PIPPRE  -U -v --find-links file://$PWD/dist -r requirements.txt
-          else
-            pip3 install $PIPPRE  -U -v --find-links file://$PWD/dist -r requirements.txt
-          fi
+          pip3 install $PIPPRE  -U -v --find-links file://$PWD/dist -r requirements.txt
         shell: bash
       - name: Setup dune-py
         run: |
