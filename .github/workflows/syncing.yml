@@ -65,7 +65,7 @@ jobs:
         # dune-common mirror and returning the tag x.y.z.r+1
         run: |
           git clone --depth 1 -b $BRANCH https://gitlab.dune-project.org/core/dune-common
-          ver=`grep "\-git" dune.module | awk -F'Version:|-git' '{print $2}' | tr -d '[:space:]'`
+          ver=`grep "\-git" dune-common/dune.module | awk -F'Version:|-git' '{print $2}' | tr -d '[:space:]'`
           if [ "x$ver" = "x" ] ; then
             echo "Automatic tagging only on master branch for now (expect '-git' in version string)"
             # here we could try to find the last tag with the given version
