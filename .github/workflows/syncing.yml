@@ -47,7 +47,6 @@ jobs:
     steps:
       - name: starting
         uses: actions/checkout@v4
-      - name: settag
       - name: setbranch
         if: github.event.inputs.branch != ''
         run: echo "BRANCH=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
