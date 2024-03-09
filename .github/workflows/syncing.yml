@@ -15,12 +15,8 @@ on:        # yamllint disable-line rule:truthy
           - none
           - pypi
           - testpypi
-      tag:
-        description: 'tag for package, i.e., v2.9.1 [automatic]'
-        required: true
-        default: 'automatic'
       branch:
-        description: 'branch to tag, i.e., releases/2.9 [master]'
+        description: 'branch, i.e., releases/2.9 [master] \n master will lead to automatic tagging with `dev` verion'
         required: true
         default: 'master'
       runTests:
@@ -46,34 +42,32 @@ jobs:
     runs-on: [ubuntu-latest]
     env:
       PAT: ${{ secrets.Dispatch_Secret }}
-      TAG: ${{ github.event.inputs.tag }}
       BRANCH: ${{ github.event.inputs.branch }}
       RUNTESTS: ${{ !contains(github.event.inputs.runTests, 'false') }}
     steps:
       - name: starting
         uses: actions/checkout@v4
       - name: settag
-        if: github.event.inputs.tag != ''
-        run: echo "BRANCH=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
       - name: setbranch
         if: github.event.inputs.branch != ''
         run: echo "BRANCH=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
       - name: generatetag
-        if: env.TAG == 'automatic'
-        # current version uses the type of pre-release tags used so far, i.e., x.y.devDate
-        # This could be changed to check latest tag of the form x.y.z.r in the
-        # dune-common mirror and returning the tag x.y.z.r+1
         run: |
-          git clone --depth 1 -b $BRANCH https://gitlab.dune-project.org/core/dune-common
-          ver=`grep "\-git" dune-common/dune.module | awk -F'Version:|-git' '{print $2}' | tr -d '[:space:]'`
-          if [ "x$ver" = "x" ] ; then
-            echo "Automatic tagging only on master branch for now (expect '-git' in version string)"
-            # here we could try to find the last tag with the given version
-            # and increase the last digit as mentioned above
-            exit 1
+          if [ env.branch = "master" ] ; then
+            # current version uses the type of pre-release tags used so far, i.e., x.y.devDate
+            # This could be changed to check latest tag of the form x.y.z.r in the
+            # dune-common mirror and returning the tag x.y.z.r+1
+            git clone --depth 1 -b $BRANCH https://gitlab.dune-project.org/core/dune-common
+            ver=`grep "\-git" dune-common/dune.module | awk -F'Version:|-git' '{print $2}' | tr -d '[:space:]'`
+            if [ "x$ver" = "x" ] ; then
+              echo "Automatic tagging only on master branch for now (expect '-git' in version string)"
+              exit 1
+            fi
+            tag=$ver.dev`date +%Y%m%d`
+            rm -rf dune-common
+          else
+            tag=env.branch
           fi
-          tag=$ver.dev`date +%Y%m%d`
-          rm -rf dune-common
           echo "Using tag=$tag"
           echo "TAG=$tag" >> $GITHUB_ENV
         shell: bash
@@ -90,8 +84,8 @@ jobs:
           ref: ${{ github.ref }}
           workflow: packaging.yml
           workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}",
-                              "branch": "${{ env.TAG }}",
-                              "fembranch": "${{ env.TAG }}",
+                              "branch": "${{ env.BRANCH }}",
+                              "fembranch": "${{ env.BRANCH }}",
                               "download": "github",
                               "upload": "${{ github.event.inputs.upload }}",
                               "runTests": "${{ env.RUNTESTS }}" }'
@@ -117,9 +111,7 @@ jobs:
           if_no_artifact_found: fail
       - name: remove tag on failure
         if: failure()
-        run: |
-          failTag="${TAG/dev/bad}"
-          bash ./syncmirror "$TAG-failed" $BRANCH $TAG
+        run: bash ./syncmirror $TAG $BRANCH "${TAG/dev/bad}"
         shell: bash
       - name: upload artifacts
         uses: actions/upload-artifact@v4
