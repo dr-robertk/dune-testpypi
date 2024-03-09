@@ -16,7 +16,7 @@ on:        # yamllint disable-line rule:truthy
           - pypi
           - testpypi
       branch:
-        description: 'branch, i.e., releases/2.9 [master] \n master will lead to automatic tagging with `dev` verion'
+        description: 'branch, i.e., releases/2.9 [master] - master will lead to automatic tagging with `dev` verioning'
         required: true
         default: 'master'
       runTests:
