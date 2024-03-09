@@ -52,7 +52,7 @@ jobs:
         run: echo "BRANCH=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
       - name: generatetag
         run: |
-          if [ env.branch = "master" ] ; then
+          if [ $BRANCH = "master" ] ; then
             # current version uses the type of pre-release tags used so far, i.e., x.y.devDate
             # This could be changed to check latest tag of the form x.y.z.r in the
             # dune-common mirror and returning the tag x.y.z.r+1
@@ -65,7 +65,7 @@ jobs:
             tag=$ver.dev`date +%Y%m%d`
             rm -rf dune-common
           else
-            tag=env.branch
+            tag=$BRANCH
           fi
           echo "Using tag=$tag"
           echo "TAG=$tag" >> $GITHUB_ENV
@@ -74,7 +74,7 @@ jobs:
         run: bash ./syncmirror $TAG $BRANCH
         shell: bash
       - name: Run packaging workflow and get run ID
-        if: github.env.branch != 'cleanup'
+        if: github.event.inputs.branch != 'cleanup'
         uses: codex-/return-dispatch@v1
         id: return_dispatch
         with:
@@ -90,7 +90,7 @@ jobs:
                               "upload": "${{ github.event.inputs.upload }}",
                               "runTests": "${{ env.RUNTESTS }}" }'
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
-        if: github.env.branch != 'cleanup'
+        if: github.event.inputs.branch != 'cleanup'
         uses: Codex-/await-remote-run@v1
         with:
           token: ${{ secrets.Dispatch_Secret }}
@@ -100,7 +100,7 @@ jobs:
           run_timeout_seconds: 7200
           poll_interval_ms: 5000
       - name: download artifacts from RUN ID ${{ steps.return_dispatch.outputs.run_id }}
-        if: github.env.branch != 'cleanup'
+        if: github.event.inputs.branch != 'cleanup'
         uses: dawidd6/action-download-artifact@v3
         with:
           github_token: ${{ secrets.Dispatch_Secret }}
@@ -112,10 +112,11 @@ jobs:
           path: dist
           if_no_artifact_found: fail
       - name: remove tag on failure
-        if: failure() && github.env.branch != 'cleanup'
+        if: failure() && github.event.inputs.branch != 'cleanup'
         run: bash ./syncmirror $TAG $BRANCH "${TAG/dev/bad}"
         shell: bash
       - name: upload artifacts
+        if: failure() && github.event.inputs.branch != 'cleanup'
         uses: actions/upload-artifact@v4
         with:
           name: packages
