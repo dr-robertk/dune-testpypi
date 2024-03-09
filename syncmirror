@@ -28,7 +28,7 @@ syncmodule()
     # files which are too large. Note that every commit hash changes but
     # the origin is stored in the new log message
     cd ..
-    java -jar bfg.jar --strip-blobs-bigger-than 90M $m
+    java -jar bfg.jar --strip-blobs-bigger-than 90M $m >& /dev/null
     cd $m
     git reflog expire --expire=now --all && git gc --prune=now --aggressive
   fi
