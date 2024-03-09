@@ -116,7 +116,7 @@ jobs:
         run: bash ./syncmirror $TAG "${TAG/dev/bad}"
         shell: bash
       - name: upload artifacts
-        if: failure() && github.event.inputs.tag != 'cleanup'
+        if: github.event.inputs.tag != 'cleanup'
         uses: actions/upload-artifact@v4
         with:
           name: packages
