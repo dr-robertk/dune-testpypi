@@ -1,6 +1,5 @@
 tag=$1
-branch=$2
-deltag=$3
+deltag=$2
 
 # needed to avoid issues with authentification
 git config --unset-all http.https://github.com/.extraheader
@@ -39,9 +38,9 @@ syncmodule()
   cd ..
   rm -rf $m
   
-  if [ "$tag" != "cleanup" ] ; then
+  if [ "$tag" = "automatic" ] ; then
     cd gh$m
-    git checkout $branch
+    git checkout master
     # first push the older tags
     git push --tags
     # possibly remove a tag
@@ -53,12 +52,10 @@ syncmodule()
     git fetch
     git pull
 
-    # we only generate new tags in master for now
-    if [ $branch = "master" ] ; then
-      # generate the new tag and push it
-      git tag -a $tag -m "from github action"
-      git push origin $tag
-    fi
+    # generate the new tag and push it
+    git tag -a $tag -m "from github action"
+    git push origin $tag
+
     cd ..
   fi
 
@@ -92,17 +89,17 @@ extramodules=(
   [dune-spgrid]='dune-spgrid.git'
 )
 
-echo "Syncing core modules and tagging branch $branch with $tag"
+echo "Syncing core modules and tagging with $tag"
 for m in "${!coremodules[@]}" ; do
   p="${coremodules[$m]}"
   syncmodule $m "$coreurl/$p"
 done
-echo "Syncing fem modules and tagging branch $branch with $tag"
+echo "Syncing fem modules and tagging with $tag"
 for m in "${!femmodules[@]}" ; do
   p="${femmodules[$m]}"
   syncmodule $m "$femurl/$p"
 done
-echo "Syncing extension modules and tagging branch $branch with $tag"
+echo "Syncing extension modules and tagging with $tag"
 for m in "${!extramodules[@]}" ; do
   p="${extramodules[$m]}"
   syncmodule $m "$exturl/$p"

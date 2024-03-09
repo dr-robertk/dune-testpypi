@@ -15,10 +15,10 @@ on:        # yamllint disable-line rule:truthy
           - none
           - pypi
           - testpypi
-      branch:
-        description: 'branch, i.e., releases/2.9 [master] - master will lead to automatic tagging with `dev` verioning'
+      tag:
+        description: 'tag, e.g., v2.9.1 [automatic] - automatic will lead to `dev` verioning'
         required: true
-        default: 'master'
+        default: 'automatic'
       runTests:
         type: boolean
         description: run testing scenarios [false]
@@ -42,21 +42,21 @@ jobs:
     runs-on: [ubuntu-latest]
     env:
       PAT: ${{ secrets.Dispatch_Secret }}
-      BRANCH: ${{ github.event.inputs.branch }}
+      TAG: ${{ github.event.inputs.tag }}
       RUNTESTS: ${{ !contains(github.event.inputs.runTests, 'false') }}
     steps:
       - name: starting
         uses: actions/checkout@v4
-      - name: setbranch
-        if: github.event.inputs.branch != ''
-        run: echo "BRANCH=${{ github.event.inputs.branch }}" >> $GITHUB_ENV
+      - name: settag
+        if: github.event.inputs.tag != ''
+        run: echo "TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
       - name: generatetag
         run: |
-          if [ $BRANCH = "master" ] ; then
+          if [ $TAG = "automatic" ] ; then
             # current version uses the type of pre-release tags used so far, i.e., x.y.devDate
             # This could be changed to check latest tag of the form x.y.z.r in the
             # dune-common mirror and returning the tag x.y.z.r+1
-            git clone --depth 1 -b $BRANCH https://gitlab.dune-project.org/core/dune-common
+            git clone --depth 1 https://gitlab.dune-project.org/core/dune-common
             ver=`grep "\-git" dune-common/dune.module | awk -F'Version:|-git' '{print $2}' | tr -d '[:space:]'`
             if [ "x$ver" = "x" ] ; then
               echo "Automatic tagging only on master branch for now (expect '-git' in version string)"
@@ -65,16 +65,16 @@ jobs:
             tag=$ver.dev`date +%Y%m%d`
             rm -rf dune-common
           else
-            tag=$BRANCH
+            tag=$TAG
           fi
           echo "Using tag=$tag"
           echo "TAG=$tag" >> $GITHUB_ENV
         shell: bash
       - name: execute script
-        run: bash ./syncmirror $TAG $BRANCH
+        run: bash ./syncmirror $TAG
         shell: bash
       - name: Run packaging workflow and get run ID
-        if: github.event.inputs.branch != 'cleanup'
+        if: github.event.inputs.tag != 'cleanup'
         uses: codex-/return-dispatch@v1
         id: return_dispatch
         with:
@@ -84,13 +84,13 @@ jobs:
           ref: ${{ github.ref }}
           workflow: packaging.yml
           workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}",
-                              "branch": "${{ env.BRANCH }}",
-                              "fembranch": "${{ env.BRANCH }}",
+                              "branch": "${{ env.TAG }}",
+                              "fembranch": "${{ env.TAG }}",
                               "download": "github",
                               "upload": "${{ github.event.inputs.upload }}",
                               "runTests": "${{ env.RUNTESTS }}" }'
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
-        if: github.event.inputs.branch != 'cleanup'
+        if: github.event.inputs.tag != 'cleanup'
         uses: Codex-/await-remote-run@v1
         with:
           token: ${{ secrets.Dispatch_Secret }}
@@ -100,7 +100,7 @@ jobs:
           run_timeout_seconds: 7200
           poll_interval_ms: 5000
       - name: download artifacts from RUN ID ${{ steps.return_dispatch.outputs.run_id }}
-        if: github.event.inputs.branch != 'cleanup'
+        if: github.event.inputs.tag != 'cleanup'
         uses: dawidd6/action-download-artifact@v3
         with:
           github_token: ${{ secrets.Dispatch_Secret }}
@@ -112,11 +112,11 @@ jobs:
           path: dist
           if_no_artifact_found: fail
       - name: remove tag on failure
-        if: failure() && github.event.inputs.branch != 'cleanup'
-        run: bash ./syncmirror $TAG $BRANCH "${TAG/dev/bad}"
+        if: failure() && github.event.inputs.tag != 'cleanup'
+        run: bash ./syncmirror $TAG "${TAG/dev/bad}"
         shell: bash
       - name: upload artifacts
-        if: failure() && github.event.inputs.branch != 'cleanup'
+        if: failure() && github.event.inputs.tag != 'cleanup'
         uses: actions/upload-artifact@v4
         with:
           name: packages
