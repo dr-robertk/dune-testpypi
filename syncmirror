@@ -59,10 +59,10 @@ syncmodule()
       git tag -a $tag -m "from github action"
       git push origin $tag
     fi
+    cd ..
   fi
 
   # remove gh repo
-  cd ..
   rm -rf gh$m
 }
 
