@@ -223,7 +223,7 @@ jobs:
   # https://github.com/marketplace/actions/pypi-publish
   upload:
     name: uploading
-    if ${{ github.event.inputs.upload != 'none' && github.event.inputs.upload != '' }}
+    if: ${{ github.event.inputs.upload != 'none' && github.event.inputs.upload != '' }}
     needs: test
     runs-on: [ubuntu-latest]
     steps:
