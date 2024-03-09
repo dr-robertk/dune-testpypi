@@ -13,7 +13,6 @@ syncmodule()
   set +e
   m=$1 # module name (name)
   p=$2 # module path (dune-project's gitlab)
-  b=$branch # branch to tag
 
   # first checkout the current version of the git repo this will make it
   # possible to later push the tags generated on github which are lost
@@ -40,24 +39,26 @@ syncmodule()
   cd ..
   rm -rf $m
   
-  cd gh$m
-  git checkout $branch
-  # first push the older tags
-  git push --tags
-  # possibly remove a tag
-  if [ ! -z $deltag ] ; then
-    git push origin :refs/tags/$deltag
-  fi
+  if [ "$tag" != "cleanup" ] ; then
+    cd gh$m
+    git checkout $branch
+    # first push the older tags
+    git push --tags
+    # possibly remove a tag
+    if [ ! -z $deltag ] ; then
+      git push origin :refs/tags/$deltag
+    fi
 
-  # get the new data from the mirror step
-  git fetch
-  git pull
+    # get the new data from the mirror step
+    git fetch
+    git pull
 
-  # we only generate new tags in master for now
-  if [ $branch = "master" ] ; then
-    # generate the new tag and push it
-    git tag -a $tag -m "from github action"
-    git push origin $tag
+    # we only generate new tags in master for now
+    if [ $branch = "master" ] ; then
+      # generate the new tag and push it
+      git tag -a $tag -m "from github action"
+      git push origin $tag
+    fi
   fi
 
   # remove gh repo
