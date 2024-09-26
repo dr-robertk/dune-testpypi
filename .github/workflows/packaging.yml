@@ -49,17 +49,17 @@ on:        # yamllint disable-line rule:truthy
         default: 'master'
       runTests:
         type: boolean
-        description: run testing scenarios [false]
+        description: run testing scenarios [true]
         required: true
         default: true
       logLevel:
         type: choice
-        description: 'Log level [Warn]'
+        description: 'Log level [Warning]'
         required: true
-        default: 'Warn'
+        default: 'Warning'
         options:
           - Debug
-          - Warn
+          - Warning
           - Info
           - error
       # needed only for dispatching from other repo
