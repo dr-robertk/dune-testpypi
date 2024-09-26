@@ -54,12 +54,12 @@ on:        # yamllint disable-line rule:truthy
         default: true
       logLevel:
         type: choice
-        description: 'Log level [Warning]'
+        description: 'Log level [Warn]'
         required: true
-        default: 'Warning'
+        default: 'Warn'
         options:
           - Debug
-          - Warning
+          - Warn
           - Info
           - error
       # needed only for dispatching from other repo
@@ -109,6 +109,7 @@ jobs:
           ref: ${{ github.ref }}
           workflow: testing.yml
           workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}", "branch": "${{ github.event.inputs.branch }}", "fembranch": "${{ github.event.inputs.fembranch }}", "download": "${{ env.DOWNURL }}", "runTests": "${{ env.RUNTESTS }}" }'
+          # workflow_timeout_seconds: 120
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
         uses: Codex-/await-remote-run@v1
         with:
@@ -159,6 +160,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
+      - name: environmentLog
+        if: github.event.inputs.logLevel != ''
+        run: echo "LOGLEVEL=${{ github.event.inputs.logLevel }}" >> $GITHUB_ENV
       - name: download artifacts
         uses: actions/download-artifact@v4
         # if all packages exist on pypi then no artifacts are uploaded so don't fail
