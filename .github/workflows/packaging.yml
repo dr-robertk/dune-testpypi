@@ -220,6 +220,7 @@ jobs:
           python --version
           export DUNEPY_DISABLE_PLOTTING=1
           export DUNE_LOG_LEVEL=$LOGLEVEL
+          export OMP_NUM_THREADS=4
           cd fem_tutorial
           python ../run-tutorial.py ${{ matrix.test }}
         shell: bash
