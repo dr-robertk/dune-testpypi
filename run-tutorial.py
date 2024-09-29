@@ -38,7 +38,7 @@ tests = {
       "wave.py",
       "chemical.py",
       "chimpl.py",
-      # "euler.py",             # one of these
+      "euler.py",             # one of these
       # "twophaseflow.py",      # does not terminate on MACOs
       "vemdemo.py",
       "monolithicStokes.py",
