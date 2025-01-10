@@ -28,6 +28,8 @@ syncmodule()
   # first checkout the current version of the git repo this will make it
   # possible to later push the tags generated on github which are lost
   # during the mirroring process:
+  echo "Executing: git clone https://user:$PAT@github.com/$owner/$m gh$m"
+
   git clone https://user:$PAT@github.com/$owner/$m gh$m
 
   # now clone the original
