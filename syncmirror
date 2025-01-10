@@ -19,6 +19,9 @@ else
   exit 1
 fi
 
+export GH_TOKEN=$PAT
+gh auth status
+
 syncmodule()
 {
   set +e
