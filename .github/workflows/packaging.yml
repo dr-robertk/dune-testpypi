@@ -82,7 +82,7 @@ jobs:
         run: echo ${{ github.event.inputs.distinct_id }}
       - name: downloadGithub
         if: github.event.inputs.download == 'github'
-        run: echo "DOWNURL=https://github.com/adedner" >> $GITHUB_ENV
+        run: echo "DOWNURL=https://github.com/${{ github.repository_owner }}" >> $GITHUB_ENV
       - name: downloadLund
         if: github.event.inputs.download == 'lund'
         run: echo "DOWNURL=https://gitlab.maths.lu.se/dune" >> $GITHUB_ENV
