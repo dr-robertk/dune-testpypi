@@ -19,9 +19,6 @@ else
   exit 1
 fi
 
-export GH_TOKEN=$PAT
-gh auth status
-
 syncmodule()
 {
   set +e
@@ -49,7 +46,6 @@ syncmodule()
   fi
 
   # mirror to github and remove original repo
-  echo "git push --mirror https://user:$PAT@github.com/$owner/$m"
   git push --mirror https://user:$PAT@github.com/$owner/$m
   cd ..
   rm -rf $m

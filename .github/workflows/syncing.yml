@@ -41,7 +41,7 @@ jobs:
     name: sync and tag
     runs-on: [ubuntu-latest]
     env:
-      PAT: ${{ secrets.DISPATCH_SECRET }}
+      PAT: ${{ secrets.GITHUB_TOKEN }}
       TAG: ${{ github.event.inputs.tag }}
       RUNTESTS: ${{ !contains(github.event.inputs.runTests, 'false') }}
     steps:
@@ -78,7 +78,7 @@ jobs:
         uses: codex-/return-dispatch@v1
         id: return_dispatch
         with:
-          token: ${{ secrets.DISPATCH_SECRET }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           repo: dune-testpypi
           owner: ${{ github.repository_owner }}
           ref: ${{ github.ref }}
@@ -93,7 +93,7 @@ jobs:
         if: github.event.inputs.tag != 'cleanup'
         uses: Codex-/await-remote-run@v1
         with:
-          token: ${{ secrets.DISPATCH_SECRET }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           repo: dune-testpypi
           owner: ${{ github.repository_owner }}
           run_id: ${{ steps.return_dispatch.outputs.run_id }}
@@ -103,7 +103,7 @@ jobs:
         if: github.event.inputs.tag != 'cleanup'
         uses: dawidd6/action-download-artifact@v3
         with:
-          github_token: ${{ secrets.DISPATCH_SECRET }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           repo: ${{ github.repository_owner }}/dune-testpypi
           workflow: packaging.yml
           run_id: ${{ steps.return_dispatch.outputs.run_id }}
